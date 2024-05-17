@@ -1,0 +1,15 @@
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\bin\Debug\net8.0\API_DOAN_Infrastructure.deps.json
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\bin\Debug\net8.0\API_DOAN_Infrastructure.dll
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\bin\Debug\net8.0\API_DOAN_Infrastructure.pdb
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\bin\Debug\net8.0\API_DOAN_Core.dll
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\bin\Debug\net8.0\API_DOAN_Core.pdb
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\obj\Debug\net8.0\API_DOAN_Infrastructure.csproj.AssemblyReference.cache
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\obj\Debug\net8.0\API_DOAN_Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\obj\Debug\net8.0\API_DOAN_Infrastructure.AssemblyInfoInputs.cache
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\obj\Debug\net8.0\API_DOAN_Infrastructure.AssemblyInfo.cs
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\obj\Debug\net8.0\API_DOAN_Infrastructure.csproj.CoreCompileInputs.cache
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\obj\Debug\net8.0\API_DOAN_Infrastructure.csproj.CopyComplete
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\obj\Debug\net8.0\API_DOAN_Infrastructure.dll
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\obj\Debug\net8.0\refint\API_DOAN_Infrastructure.dll
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\obj\Debug\net8.0\API_DOAN_Infrastructure.pdb
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Infrastructure\obj\Debug\net8.0\ref\API_DOAN_Infrastructure.dll

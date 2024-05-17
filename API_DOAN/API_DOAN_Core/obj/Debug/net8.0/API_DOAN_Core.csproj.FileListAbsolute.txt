@@ -1,0 +1,14 @@
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\bin\Debug\net8.0\API_DOAN_Core.deps.json
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\bin\Debug\net8.0\API_DOAN_Core.dll
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\bin\Debug\net8.0\API_DOAN_Core.pdb
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\obj\Debug\net8.0\API_DOAN_Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\obj\Debug\net8.0\API_DOAN_Core.AssemblyInfoInputs.cache
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\obj\Debug\net8.0\API_DOAN_Core.AssemblyInfo.cs
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\obj\Debug\net8.0\API_DOAN_Core.csproj.CoreCompileInputs.cache
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\obj\Debug\net8.0\API_DOAN_Core.dll
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\obj\Debug\net8.0\refint\API_DOAN_Core.dll
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\obj\Debug\net8.0\API_DOAN_Core.pdb
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\obj\Debug\net8.0\ref\API_DOAN_Core.dll
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\obj\Debug\net8.0\API_DOAN_Core.csproj.AssemblyReference.cache
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\obj\Debug\net8.0\API_DOAN_Core.Resource.Resource1.resources
+D:\DHCNHN\ĐỒ ÁN\MAIN\API_DOAN\API_DOAN_Core\obj\Debug\net8.0\API_DOAN_Core.csproj.GenerateResource.cache
