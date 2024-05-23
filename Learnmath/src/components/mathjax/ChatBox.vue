@@ -1,30 +1,11 @@
 <template>
-    <div class="hopchat">
-        <div class="icon_message" v-on:click="openChatBot()">
-            <div class="circle-icon_message"></div>
-            <img width="94" height="94" src="https://img.icons8.com/3d-fluency/94/facebook-messenger.png" alt="facebook-messenger"/>
-        </div>
-        <div class="chat-box" v-show="open_chat_bot">
-            <div class="chat-box-title">
-                <div>Learnmath</div>
-                <div class="chat-box-icon-title">
-                    <div class="icon_bacham"></div>
-                    <div class="icon_thunho" v-on:click="closeChatBot()"></div>
-                </div>
-            </div>
-            <div class="chat-box-content">
-                <h1>Chat với Learmath</h1>
-            </div>
-            <div class="chat-box-chat">
-                <button>
-                    <a href="https://m.me/276853985518852" target="_blank">Bắt đầu chat</a>
-                </button>
-                <div>
-                    <div class="icon_mess"></div>
-                    <div>Do Messenger cung cấp</div>
-                </div>
-            </div>
-        </div>
+    <div>
+        <df-messenger
+        intent="WELCOME"
+        chat-title="LearnMath"
+        agent-id="a5e0c96b-fa28-4a55-b3e8-09d7c9a05d7c"
+        language-code="vi"
+        ></df-messenger>
     </div>
 </template>
 <script>

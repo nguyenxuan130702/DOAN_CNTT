@@ -88,7 +88,7 @@
                             <td style="width: 100px;">Mã buổi học</td>
                             <td style="width: 500px">Nội dung mô tả</td>
                             <td style="width: 200px">Thời gian học</td>
-                            <td >Tài liệu</td>
+                            <td >Quản lý điểm</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -128,7 +128,7 @@
 
     <div class="course-teacher" id="hocsinh-danhgia-teacher">
         <div class="hocsinh-teacher-title">
-            <h1>Lịch học</h1>
+            <h1>Danh sách học sinh</h1>
             <div class="lichhoa_back" v-on:click="backFile2()">
                 <div class="icon_backup"></div>
                 <div>Quay lại</div>
@@ -140,7 +140,7 @@
                     <select name="" id="" class="file_submit" v-model="assignmentid">
                         <option :value="item.assignmentId" v-for="(item, index) in list1" :key="index">{{item.assignmentName}}</option>
                     </select>
-                    <div class="search-course" v-on:click="searchCourse()">
+                    <div class="search-course" v-on:click="searchHocSinhBTVN()">
                         <div class="icon_search"></div>
                     </div>
                 </div>
@@ -174,7 +174,7 @@
                             <td style="width: 200px; text-align: center" class="xemchitiet">
                                 <button v-on:click="chamDiem(item, submit[index])">Xem</button>
                             </td>
-                            <td style="text-align: center" class="xemchitiet" v-on:click="openFileBTVN(item)">
+                            <td style="text-align: center" class="xemchitiet">
                                 <button v-if="ketqua_diem[index]" style="background-color: blue;">{{ ketqua_diem[index].score }}</button>
                                 <button v-else style="background-color: red;">Chưa chấm</button>
                             </td>
@@ -205,6 +205,10 @@
     <div class="form-chamdiem" id="form-chamdiem">
         <div class="chamdiem-teacher">
             <div>
+                <div class="bieudo-btvn">
+                    <h3>Điểm bài làm</h3>
+                    <div class="icon_close" v-on:click="closeChamDiem()"></div>
+                </div>
                 <div>
                     <label for="">
                         <b>Điểm: </b> <br>
@@ -221,7 +225,7 @@
                     <textarea name="" id="feedback" cols="30" rows="10" v-model="feedback"></textarea>
                 </label>
             </div>
-            <div>
+            <!-- <div>
                 <div class="bieudo-btvn">
                     <h3>Tình trạng làm bài</h3>
                     <div class="icon_close" v-on:click="closeChamDiem()"></div>
@@ -229,7 +233,7 @@
                 <div class="bieudo-ngaynghi" id="bieudo-ngaynghi">
                     <canvas ref="chart" :style="{ width: chartWidth + 'px', height: chartHeight + 'px' }"></canvas>
                 </div>
-            </div>
+            </div> -->
         </div>
         <div>
             <button v-on:click="capNhatDiem()">Cập nhật</button>
@@ -241,7 +245,7 @@
 import NavBar from '@/components/teacher/layout/NavbarTeacher.vue'
 import Sidebar from '@/components/teacher/layout/SidebarTeacher.vue'
 import BaseRequest from '@/core/BaseRequest'
-import Chart from 'chart.js/auto'
+//import Chart from 'chart.js/auto'
 export default {
     components: {
         NavBar, 
@@ -291,65 +295,114 @@ export default {
 
     }, 
     methods: {
-        async tinhTrang(item) {
-            const response = await BaseRequest.get("submit/submit_user?userId=" + item.userId); 
+        searchHocSinhBTVN: function(){
+            if (this.hocsinh.length === 0) {
+                alert("Không có học sinh đăng ký khóa học.");
+            } 
+            else {
+                // Tạo một mảng các promise
+                const promises = this.hocsinh.map(student => {
+                    return BaseRequest.get("submit/submit_user_assignment?userId=" + student.userId + "&assignmentId=" + this.assignmentid)
+                        .then(response => {
+                            return response.data[0];
+                        });
+                });
 
-            this.hocsinh_submit = response.data; 
+                const propmises1 = this.hocsinh.map(student1 => {
+                    return BaseRequest.get("result/user_assignment?userId=" + student1.userId + "&assignmentId=" + this.assignmentid)
+                    .then(response => {
+                        return response.data; 
+                    }); 
+                }); 
 
-            console.log("Ít: "); 
-            console.log(this.hocsinh_submit); 
+                // Đợi tất cả các yêu cầu hoàn thành trước khi xử lý dữ liệu
+                Promise.all(promises)
+                    .then(submits => {
+                        this.submit = submits;
 
-                // if (!Array.isArray(this.hocsinh_class)) {
-                //     console.error('this.hocsinh_class is not an array');
-                //     return;
-                // }
+                        // Kiểm tra xem mỗi học sinh đã nộp bài hay chưa
+                        this.check = this.submit.map(submit => {
+                            return submit !== null && submit !== undefined && submit !== "";
+                        });
 
-                if(this.hocsinh_submit.length === 0){
-                    this.data[0] = 0; 
-                    this.data[1] = 0; 
-                    this.data[2] = 100; 
-                }
-                else {
-                    let dung = 0; 
-                    let muon = 0; 
-                    let khong = 0; 
-                    for (const item1 of this.hocsinh_class) {
-                        let tg = 0; 
-                        for (const item2 of this.hocsinh_submit) {
-                            if(item1.assignmentId === item2.assignmentId && this.renderDate(item2.date) <= this.renderDate(item1.deadline)){
-                                dung++; 
-                                break; 
-                            }
-                            else if(item1.assignmentId === item2.assignmentId && this.renderDate(item2.date) > this.renderDate(item1.deadline)){
-                                muon++; 
-                                break; 
-                            }
-                            else {
-                                tg++; 
-                            }
-                        }
-                        if(tg === this.hocsinh_submit){
-                            khong++; 
-                        }
-                    }
-                    console.log("d" + dung); 
-                    console.log("d" + muon); 
-                    console.log('k' + khong); 
+                        console.log(this.submit);
+                        console.log(this.check);
+                    })
+                    .catch(error => {
+                        console.log(error.message);
+                    });
 
+                ///
+                Promise.all(propmises1)
+                    .then(results => {
+                        this.ketqua_diem = results;
 
-                    this.data[0] = (dung/this.hocsinh_class.length)*100; 
-                    console.log(this.data[0]); 
-                    this.data[1] = (muon/this.hocsinh_class.length)*100; 
-                    console.log(this.data[1]); 
-                    this.data[2] = 100 - this.data[0] - this.data[1]; 
-
-                }
+                        // Kiểm tra xem mỗi học sinh đã nộp bài hay chưa
+                    })
+                    .catch(error => {
+                        console.log(error.message);
+                    });
+            }
         }, 
+        // async tinhTrang(item) {
+        //     const response = await BaseRequest.get("submit/submit_user?userId=" + item.userId); 
+
+        //     this.hocsinh_submit = response.data; 
+
+        //     console.log("Ít: "); 
+        //     console.log(this.hocsinh_submit); 
+
+        //         // if (!Array.isArray(this.hocsinh_class)) {
+        //         //     console.error('this.hocsinh_class is not an array');
+        //         //     return;
+        //         // }
+
+        //         if(this.hocsinh_submit.length === 0){
+        //             this.data[0] = 0; 
+        //             this.data[1] = 0; 
+        //             this.data[2] = 100; 
+        //         }
+        //         else {
+        //             let dung = 0; 
+        //             let muon = 0; 
+        //             let khong = 0; 
+        //             for (const item1 of this.hocsinh_class) {
+        //                 let tg = 0; 
+        //                 for (const item2 of this.hocsinh_submit) {
+        //                     if(item1.assignmentId === item2.assignmentId && this.renderDate(item2.date) <= this.renderDate(item1.deadline)){
+        //                         dung++; 
+        //                         break; 
+        //                     }
+        //                     else if(item1.assignmentId === item2.assignmentId && this.renderDate(item2.date) > this.renderDate(item1.deadline)){
+        //                         muon++; 
+        //                         break; 
+        //                     }
+        //                     else {
+        //                         tg++; 
+        //                     }
+        //                 }
+        //                 if(tg === this.hocsinh_submit){
+        //                     khong++; 
+        //                 }
+        //             }
+        //             console.log("d" + dung); 
+        //             console.log("d" + muon); 
+        //             console.log('k' + khong); 
+
+
+        //             this.data[0] = (dung/this.hocsinh_class.length)*100; 
+        //             console.log(this.data[0]); 
+        //             this.data[1] = (muon/this.hocsinh_class.length)*100; 
+        //             console.log(this.data[1]); 
+        //             this.data[2] = 100 - this.data[0] - this.data[1]; 
+
+        //         }
+        // }, 
         async chamDiem(item1, item2) {
             document.getElementById("form-chamdiem").style.display = "block"; 
             document.getElementById("diem_back").style.display = "block"; 
-            await this.tinhTrang(item1); 
-            this.renderChart(this.data);
+            //await this.tinhTrang(item1); 
+            //this.renderChart(this.data);
             this.user = item1; 
 
             if(item2 === null || item2 === undefined || item2 === ""){
@@ -494,96 +547,102 @@ export default {
             BaseRequest.get("assignment/class?classId=" + item.classId)
             .then(response => {
                 this.list1 = response.data;
-                this.assignmentid = this.list1[0].assignmentId;  
+
                 console.log(this.assignmentid); 
 
-                BaseRequest.get("enrollment/user_enrollment_teacher_course?teacher_CourseId=" + this.getCourse.teacher_CourseId)
-                .then(response => {
-                    this.hocsinh = response.data;
+                if(this.list1.length > 0){
+                    this.assignmentid = this.list1[0].assignmentId;  
+                    BaseRequest.get("enrollment/user_enrollment_teacher_course?teacher_CourseId=" + this.getCourse.teacher_CourseId)
+                    .then(response => {
+                        this.hocsinh = response.data;
 
-                    if (this.hocsinh.length === 0) {
-                        alert("Không có học sinh đăng ký khóa học.");
-                    } else {
-                        // Tạo một mảng các promise
-                        const promises = this.hocsinh.map(student => {
-                            return BaseRequest.get("submit/submit_user_assignment?userId=" + student.userId + "&assignmentId=" + this.assignmentid)
+                        if (this.hocsinh.length === 0) {
+                            alert("Không có học sinh đăng ký khóa học.");
+                        } else {
+                            // Tạo một mảng các promise
+                            const promises = this.hocsinh.map(student => {
+                                return BaseRequest.get("submit/submit_user_assignment?userId=" + student.userId + "&assignmentId=" + this.assignmentid)
+                                    .then(response => {
+                                        return response.data[0];
+                                    });
+                            });
+
+                            const propmises1 = this.hocsinh.map(student1 => {
+                                return BaseRequest.get("result/user_assignment?userId=" + student1.userId + "&assignmentId=" + this.assignmentid)
                                 .then(response => {
-                                    return response.data[0];
-                                });
-                        });
-
-                        const propmises1 = this.hocsinh.map(student1 => {
-                            return BaseRequest.get("result/user_assignment?userId=" + student1.userId + "&assignmentId=" + this.assignmentid)
-                            .then(response => {
-                                return response.data; 
+                                    return response.data; 
+                                }); 
                             }); 
-                        }); 
 
-                        // Đợi tất cả các yêu cầu hoàn thành trước khi xử lý dữ liệu
-                        Promise.all(promises)
-                            .then(submits => {
-                                this.submit = submits;
+                            // Đợi tất cả các yêu cầu hoàn thành trước khi xử lý dữ liệu
+                            Promise.all(promises)
+                                .then(submits => {
+                                    this.submit = submits;
 
-                                // Kiểm tra xem mỗi học sinh đã nộp bài hay chưa
-                                this.check = this.submit.map(submit => {
-                                    return submit !== null && submit !== undefined && submit !== "";
+                                    // Kiểm tra xem mỗi học sinh đã nộp bài hay chưa
+                                    this.check = this.submit.map(submit => {
+                                        return submit !== null && submit !== undefined && submit !== "";
+                                    });
+
+                                    console.log(this.submit);
+                                    console.log(this.check);
+                                })
+                                .catch(error => {
+                                    console.log(error.message);
                                 });
 
-                                console.log(this.submit);
-                                console.log(this.check);
-                            })
-                            .catch(error => {
-                                console.log(error.message);
-                            });
+                            ///
+                            Promise.all(propmises1)
+                                .then(results => {
+                                    this.ketqua_diem = results;
 
-                        ///
-                        Promise.all(propmises1)
-                            .then(results => {
-                                this.ketqua_diem = results;
-
-                                // Kiểm tra xem mỗi học sinh đã nộp bài hay chưa
-                            })
-                            .catch(error => {
-                                console.log(error.message);
-                            });
-                    }
-                console.log(this.hocsinh);
-                })
-                .catch(error => {
-                    console.log(error.message);
-                });
+                                    // Kiểm tra xem mỗi học sinh đã nộp bài hay chưa
+                                })
+                                .catch(error => {
+                                    console.log(error.message);
+                                });
+                        }
+                    console.log(this.hocsinh);
+                    })
+                    .catch(error => {
+                        console.log(error.message);
+                    });
+                }
+                else {
+                    alert("Không có bài tập về nhà."); 
+                }
 
             })
         }, 
-        renderChart(data) {
-            const ctx = this.$refs.chart.getContext('2d');
-            if (this.chart) {
-                this.chart.destroy();
-            }
-            this.chart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                labels: ['Hoàn thành', 'Nộp muộn', 'Chưa hoàn thành'],
-                datasets: [{
-                    label: 'Sample Data',
-                    data: data,
-                    backgroundColor: [
-                    'blue',
-                    'green',
-                    'red'
-                    ]
-                }]
-                },
-                options: {
-                responsive: false // Tắt tính năng phản ứng tự động của biểu đồ
-                }
-            }); 
-        },
-        beforeUnmount() {
-            if (this.chart) {
-                this.chart.destroy(); // Phá hủy biểu đồ khi component bị tháo gỡ
-            }
-        }
+        // renderChart(data) {
+        //     const ctx = this.$refs.chart.getContext('2d');
+        //     if (this.chart) {
+        //         this.chart.destroy();
+        //     }
+        //     this.chart = new Chart(ctx, {
+        //         type: 'doughnut',
+        //         data: {
+        //         labels: ['Hoàn thành', 'Nộp muộn', 'Chưa hoàn thành'],
+        //         datasets: [{
+        //             label: 'Sample Data',
+        //             data: data,
+        //             backgroundColor: [
+        //             'blue',
+        //             'green',
+        //             'red'
+        //             ]
+        //         }]
+        //         },
+        //         options: {
+        //         responsive: false // Tắt tính năng phản ứng tự động của biểu đồ
+        //         }
+        //     }); 
+        // },
+        // beforeUnmount() {
+        //     if (this.chart) {
+        //         this.chart.destroy(); // Phá hủy biểu đồ khi component bị tháo gỡ
+        //     }
+        // }
     }
 
 }
@@ -596,8 +655,8 @@ export default {
 .form-chamdiem {
     position: absolute; 
     top: 50px; 
-    left: 16%; 
-    width: 70%; 
+    left: 25%; 
+    width: 50%; 
     display: none;
     z-index: 1;
 }
@@ -626,7 +685,7 @@ export default {
     padding-right: 24px; 
 }
 .chamdiem-teacher > div {
-    width: 48%; 
+    width: 100%; 
 }
 .chamdiem-teacher > div > label {
     width: 100%; 

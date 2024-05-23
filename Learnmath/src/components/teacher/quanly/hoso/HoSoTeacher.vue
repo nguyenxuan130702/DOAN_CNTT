@@ -107,11 +107,7 @@ export default {
                 this.thongbao(input1, "Họ tên không được phép để trống."); 
                 isCheck = false;
             }
-            else {
-                if(this.nameadmin === this.teacher.teacherName){
-                    isCheck = false; 
-                }
-            }
+            
 
             //validate rỗng trong email 
             if(this.emailadmin === "" || this.emailadmin === null || this.emailadmin === undefined){
@@ -120,10 +116,7 @@ export default {
             }
             else {
                 if(this.checkEmail(this.emailadmin)){
-                    if(this.emailadmin === this.teacher.teacherEmail){ 
-                        isCheck = false; 
-                    }
-                    else{
+                    if(this.emailadmin !== this.teacher.teacherEmail){ 
                         for (const item of this.user) {
                             if(item.teacherEmail === this.emailadmin){
                                 this.thongbao(input2, "Đã có giáo viên đăng ký bằng email này."); 
@@ -146,6 +139,7 @@ export default {
                 this.teacher.teacherName = this.nameadmin; 
                 this.teacher.teacherEmail = this.emailadmin; 
                 this.teacher.teacherDescription = this.mota; 
+                console.log(this.teacher); 
                 BaseRequest.put("teacher", this.teacher)
                 .then(response => {
                     console.log(response.data); 
@@ -262,6 +256,7 @@ export default {
 }
 .profile_admin {
     font-size: 1.25rem;
+    width: calc(100% - 250px); 
 }
 .teacher_info > div > div {
     width: 100%; 

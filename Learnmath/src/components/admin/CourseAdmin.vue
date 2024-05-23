@@ -278,6 +278,8 @@ export default{
                             })
                         }
                         //Thực hiện xóa course khỏi database 
+
+                        console.log(item.courseCode); 
                         BaseRequest.delete("course?code=" + item.courseCode)
                         .then(response => {
                             console.log(response.data); 

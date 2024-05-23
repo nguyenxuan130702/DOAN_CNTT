@@ -56,7 +56,7 @@ export default {
         }
     }, 
     methods: {
-        closeFormPutScore: function(){
+        closeDialogPushVideo: function(){
             document.getElementById('form-put-score').style.display = "none"; 
             document.getElementById("score_back").style.display = "none"; 
         }, 

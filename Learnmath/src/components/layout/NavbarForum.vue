@@ -157,6 +157,24 @@ export default{
             }
 
             if(isCheck){
+                var date = new Date(); 
+                var x = date.getDate(); 
+                var z = date.getMonth() + 1; 
+                var y = date.getFullYear(); 
+                var d = ""; 
+                var m = ""; 
+                if(x < 10){
+                    d = "0" + x; 
+                }
+                else {
+                    d = x; 
+                }
+                if(z < 10){
+                    m = "0" + z; 
+                }
+                else {
+                    m = z; 
+                }
                 //Nếu như không upload ảnh thì gọi api thêm mới như bình thường. 
                 if(this.file === undefined || this.file === null || this.file === ""){
                     this.thread_code = "TH" + this.index; 
@@ -165,23 +183,13 @@ export default{
                     this.thread_new.threadsContent = this.topic_content; 
                     this.thread_new.categoryId = this.thread_category; 
                     this.thread_new.userId = this.user.userId; 
-                    var date = new Date(); 
-                    var x = date.getDate(); 
-                    var z = date.getMonth() + 1; 
-                    var y = date.getFullYear(); 
-                    var d = ""; 
-                    var m = ""; 
-                    if(x < 10){
-                        d = "0" + x; 
-                    }
-                    if(z < 10){
-                        m = "0" + z; 
-                    }
+                    
                     this.thread_new.created_at = y + "-" + m + "-" + d;
                     this.thread_new.threadsImage = ""; 
 
                     //document.getElementById("buggtopic").innerHTML = this.thread_new.threadsCode + "//" + this.thread_new.threadsTitle + "//" + this.thread_new.threadsContent + "//" + this.thread_new.categoryId + "//" + this.thread_new.userId + "//" + this.thread_new.created_at; 
 
+                    console.log(this.thread_new); 
                     BaseRequest.post("thread", this.thread_new)
                     .then(response => {
                         console.log(response.data); 
@@ -193,6 +201,33 @@ export default{
                         console.log(error.message); 
                     })
 
+                }
+                else {
+                    const formData = new FormData(); 
+                    formData.append("ThreadsCode", "string"); 
+                    formData.append("ThreadsTitle", this.thread_title); 
+                    formData.append("ThreadsContent", this.topic_content); 
+                    formData.append("CategoryId", this.thread_category); 
+                    formData.append("UserId", this.user.userId); 
+                    var date_now = y + "-" + m + "-" + d;
+                    formData.append("Created_at", date_now); 
+                    formData.append("Image", this.file); 
+
+                    
+
+                    BaseRequest.post("thread/PostImage", formData)
+                    .then(response => {
+                        console.log(response.data); 
+                        //sau khi thêm mới thành công thì điều hướng tới trang DetailThreads có mã của cái thread vừa thêm.
+                        this.$router.push("/Forum");
+                        this.showPostTopic = false;
+                    })
+                    .catch(error => {
+                        this.message = error.response.data.message;
+                        if(error.response.data.errors){
+                            this.error = error.response.data.errors;
+                        }
+                    })
                 }
             }
         }, 

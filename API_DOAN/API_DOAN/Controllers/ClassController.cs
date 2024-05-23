@@ -96,6 +96,50 @@ namespace API_DOAN.Controllers
             var res = _classService.UpdateService(t);
             return StatusCode(200, res);
         }
+        [HttpPut]
+        [Route("FilePdf")]
+        public IActionResult PutFilePdf([FromForm] ClassFile l)
+        {
+            var check = _classResitory.CheckDuplicateCode(l.ClassCode);
+            if (check)
+            {
+                var lesson = new Class { ClassId = l.ClassId, ClassCode = l.ClassCode, ClassName = l.ClassName, ClassLink = l.ClassLink, Date = l.Date, Time = l.Time, Teacher_CourseId = l.Teacher_CourseId };
+                if (l.File.Length > 0)
+                {
+                    using (var stream = l.File.OpenReadStream())
+                    {
+                        var uploadParams = new ImageUploadParams()
+                        {
+                            File = new FileDescription(l.File.FileName, stream),
+                            PublicId = "unique_id_for_uploaded_pdf"
+                        };
+                        var uploadResult = _cloudinary.Upload(uploadParams);
+
+                        var fileUrl = uploadResult.Uri.AbsoluteUri;
+
+                        lesson.DocumentLink = fileUrl;
+                    }
+                }
+                else
+                {
+                    lesson.DocumentLink = null;
+                }
+
+                var res = _classService.UpdateService(lesson);
+                if (res.Success == true)
+                {
+                    return StatusCode(201, res);
+                }
+                else
+                {
+                    return StatusCode((int)HttpStatusCode.BadGateway, res);
+                }
+            }
+            else
+            {
+                return Ok("Mã buổi học không có trong hệ thống.");
+            }
+        }
         [HttpDelete]
         public IActionResult Delete(string code)
         {

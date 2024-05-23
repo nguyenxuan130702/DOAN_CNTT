@@ -43,9 +43,9 @@ export default{
 .a-nav-logout {
     position: absolute;
     height: 56px;
-    width: 100%; 
+    width: 150px; 
     top: 56px; 
-    left: -10px;
+    left: -50px;
     bottom: 0; 
     z-index: 2;
     color: #fff; 
@@ -57,6 +57,7 @@ export default{
     transition: background-color 0.5s ease; 
     visibility: hidden;  
 }
+
 .a-nav-user:hover .teacher-login {
      visibility: visible; 
 }

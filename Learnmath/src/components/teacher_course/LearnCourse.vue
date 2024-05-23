@@ -71,7 +71,21 @@
                                             </tr>
                                             <tr>
                                                 <td>Trạng thái chấm điểm</td>
-                                                <td></td>
+                                                <td>
+                                                    <p v-if="result[item1.assignmentId]">
+                                                        {{ result[item1.assignmentId].score }} điểm
+                                                    </p>
+                                                    <p v-else>Chưa chấm</p>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Nhận xét của giáo viên</td>
+                                                <td>
+                                                    <p v-if="result[item1.assignmentId]">
+                                                        {{ result[item1.assignmentId].feedback }}
+                                                    </p>
+                                                    
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td>File bài làm</td>
@@ -140,6 +154,9 @@ export default{
             tg_nop_bai: [], 
             check_tick: [], 
             tg: new Date(), 
+
+            //result 
+            result: [], 
         }
     }, 
     mounted(){
@@ -195,28 +212,26 @@ export default{
                                 for (var i = 0; i < assignments.length; i++) {
                                     let assignmentId = assignments[i].assignmentId;
                                     BaseRequest.get("submit/submit_user_assignment?userId=" + this.userLogin.userId + "&assignmentId=" + assignmentId)
-                                        .then(response => {
-                                            let check_nop_bai = response.data;
-                                            if (check_nop_bai.length > 0) {
-                                                this.nopbai[assignmentId] = true;
-                                                this.link_bai_lam[assignmentId] = check_nop_bai[0].submitLink;
-                                                this.tg_nop_bai[assignmentId] = check_nop_bai[0].date;
-                                            } else {
-                                                this.nopbai[assignmentId] = false;
-                                            }
-                                        });
-                                } 
+                                    .then(response => {
+                                        let check_nop_bai = response.data;
+                                        if (check_nop_bai.length > 0) {
+                                            this.nopbai[assignmentId] = true;
+                                            this.link_bai_lam[assignmentId] = check_nop_bai[0].submitLink;
+                                            this.tg_nop_bai[assignmentId] = check_nop_bai[0].date;
+                                        } else {
+                                            this.nopbai[assignmentId] = false;
+                                        }
+                                    }); 
 
-                                // console.log(dem); 
-
-                                // if(dem === assignments.length){
-                                //     this.check_tick[j] = true; 
-                                // }
-
-                                // console.log(this.check_tick[j]); 
+                                    BaseRequest.get("result/user_assignment?userId=" + this.userLogin.userId + "&assignmentId=" + assignmentId)
+                                    .then(response => {
+                                        this.result[assignmentId] = response.data; 
+                                    })
+                                    .catch(error => {
+                                        console.log(error.message); 
+                                    })
+                                }  
                             }
-
-                            
                         });
                 }
             }
@@ -321,6 +336,12 @@ export default{
                 formData.append("UserId", this.userLogin.userId); 
                 formData.append("Date", date_new); 
                 formData.append("File", this.file); 
+
+                
+                console.log("AssignmentId" + this.pushSubmit.assignmentId); 
+                console.log("UserId" + this.userLogin.userId); 
+                console.log("Date" + date_new); 
+                console.log("File" + this.file); 
 
                 BaseRequest.post("submit/FilePdf", formData)
                 .then(response => {
@@ -581,5 +602,8 @@ export default{
 }
 .icon_tick {
     margin-left: 20px; 
+}
+.learn-course-detail {
+    padding-bottom: 100px; 
 }
 </style>

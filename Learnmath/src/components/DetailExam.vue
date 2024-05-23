@@ -297,13 +297,13 @@ export default {
                     this.score_user.userId = this.userLogin.userId; 
                     this.score_user.lessonId = this.lesson.lessonId; 
 
-                    // BaseRequest.post("score", this.score_user)
-                    // .then(response => {
-                    //     console.log(response.data); 
-                    // })
-                    // .catch(error => {
-                    //     console.log(error.message); 
-                    // })
+                    BaseRequest.post("score", this.score_user)
+                    .then(response => {
+                        console.log(response.data); 
+                    })
+                    .catch(error => {
+                        console.log(error.message); 
+                    })
                 })
             }
             else {
@@ -368,13 +368,13 @@ export default {
                 this.score_user.userId = this.userLogin.userId; 
                 this.score_user.lessonId = this.lesson.lessonId; 
 
-                // BaseRequest.post("score", this.score_user)
-                // .then(response => {
-                //     console.log(response.data); 
-                // })
-                // .catch(error => {
-                //     console.log(error.message); 
-                // })
+                BaseRequest.post("score", this.score_user)
+                .then(response => {
+                    console.log(response.data); 
+                })
+                .catch(error => {
+                    console.log(error.message); 
+                })
             }
         }, 
         renderNumber: function(){

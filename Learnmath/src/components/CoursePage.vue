@@ -230,4 +230,7 @@ h4 {
     padding-top: 20px; 
     padding-bottom: 20px; 
 }
+.video {
+    padding-bottom: 100px; 
+}
 </style>

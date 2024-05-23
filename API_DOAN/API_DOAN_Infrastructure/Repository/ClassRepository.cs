@@ -25,7 +25,7 @@ namespace API_DOAN_Infrastructure.Repository
 
         public IEnumerable<Class> GetByTeacher_Course(Guid teacher_CourseId)
         {
-            var sqlCheck = "SELECT * FROM Class c WHERE c.Teacher_CourseId = @code";
+            var sqlCheck = "SELECT * FROM Class c WHERE c.Teacher_CourseId = @code ORDER BY Date";
             var parameters = new DynamicParameters();
             parameters.Add("@code", teacher_CourseId);
 

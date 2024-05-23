@@ -7,7 +7,7 @@
             <img src="@/assets/math/banner.png" alt="">
         </div>
         <div class="evaluate" data-aos="fade-down" data-aos-duration="1000">
-            <h1>Học sinh nói gì về freeCodeCamp</h1>
+            <h1>Học sinh nói gì về Learmath</h1>
             <div class="evaluate_content" data-aos="fade-right" data-aos-duration="1000">
                 <div class="evaluate_contentimage">
                     <img src="@/assets/evaluate1.png" alt="">

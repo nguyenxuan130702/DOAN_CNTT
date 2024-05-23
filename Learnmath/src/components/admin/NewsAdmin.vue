@@ -3,7 +3,7 @@
     <Sidebar></Sidebar>
     <FormNew :propNews="news"></FormNew>
     <FormUpdateNew :propGetNew="getNew"></FormUpdateNew>
-    <!-- <DetailNew></DetailNew> -->
+    <DetailNew :propGetNew="getNew"></DetailNew>
     <div class="a-course">
         <h1>Quản lý bản tin</h1>
         <div class="a-course_table">
@@ -82,15 +82,15 @@ import Navbar from './layout/NavbarAdmin.vue'
 import Sidebar from './layout/SidebarAdmin.vue'
 import FormUpdateNew from './layout/FormUpdateNew.vue'
 import CanhBao from './layout/DialogCanhbao.vue'
-// import DetailNew from './layout/DetailNew.vue'
+import DetailNew from './layout/DetailNew.vue'
 export default{
     components: {
         FormNew,
         Navbar, 
         Sidebar, 
         FormUpdateNew, 
-        CanhBao
-        // DetailNew
+        CanhBao, 
+        DetailNew
     }, 
     data(){
         return {
@@ -102,6 +102,8 @@ export default{
             new_image: '', 
             pageSize: 10, 
             page: 1, 
+            new_search: [],
+            tg: [],  
         }
     }, 
     created(){
@@ -125,6 +127,29 @@ export default{
         }
     }, 
     methods: {
+        searchNew: function(){
+            var x = document.getElementById("search-new").value; 
+            BaseRequest.get("news")
+            .then(response => {
+                this.search_new = response.data;
+                this.tg = [];  
+                for (const item of this.search_new) {
+                    if(item.newCode === x || item.newTitle === x){
+                        this.tg.push(item); 
+                    }
+                }
+                this.news = this.tg; 
+                console.log(this.news); 
+            })
+            .catch(error => {
+                console.log(error.message); 
+            })
+        }, 
+        seeDetailPut: function(item){
+            this.getNew = item; 
+            document.getElementById("form_news_detail").style.display = "block"; 
+            document.getElementById("news_back").style.display = "block"; 
+        }, 
         backPageNew: function(){
             this.page--; 
             BaseRequest.get("news/page?page=" + this.page + "&pageSize=" + this.pageSize)
@@ -154,11 +179,11 @@ export default{
          * created by: Nguyễn Thị Xuân - 22/1/2024
          */
         renderDate: function(date1){
-            const date = new Date(date1);
-            const day = date.getDay(); 
-            const month = date.getMonth(); 
-            const year = date.getFullYear()
-            return day + '/' + month + '/' + year; 
+            let dateObject = new Date(date1);
+
+            let formattedDate = `${dateObject.getDate()}/${dateObject.getMonth() + 1}/${dateObject.getFullYear()}`;
+
+            return formattedDate; 
         },
         openFormPutNew: function(item){
             this.getNew = item; 

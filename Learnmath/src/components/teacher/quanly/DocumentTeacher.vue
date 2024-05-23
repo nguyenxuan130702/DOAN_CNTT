@@ -76,7 +76,7 @@
                 </div>
                 <div class="a-course_table-title-btn">
                     <div class="icon_loaddata_sty">
-                        <div class="icon_loaddata" v-on:click="loadDataCourse()"></div>
+                        <div class="icon_loaddata" v-on:click="loadDataDocument()"></div>
                     </div>
                 </div>
             </div>
@@ -143,7 +143,7 @@
                 <div class="a-course_table-title-btn">
                     <button v-on:click="openFormThemMoi()">Thêm mới</button>
                     <div class="icon_loaddata_sty">
-                        <div class="icon_loaddata" v-on:click="loadDataCourse()"></div>
+                        <div class="icon_loaddata" v-on:click="loadDataFile()"></div>
                     </div>
                 </div>
             </div>
@@ -160,7 +160,7 @@
                     <tbody>
                         <tr v-for="(item, index) in fileList" :key="index">
                             <td style="width: 300px; text-align: center;">
-                                <a :href="item.assignmentLink">{{ item.assignmentName }}</a>
+                                <a :href="item.assignmentLink" target="_blank">{{ item.assignmentName }}</a>
                             </td>
                             <td style="width: 300px">{{ renderHours(item.deadline)}} ngày {{ renderDate(item.deadline)}}</td>
                             <td style="width: 200px; text-align: center" class="hocsinh" v-on:click="suaFileTheoMa(item)">
@@ -234,7 +234,6 @@
     <div class="them-file" id="sua-file">
         <div class="them-file-title">
             <h1>Sửa tài liệu</h1>
-            <p id="mmm"></p>
             <div class="icon_close" v-on:click="closeSuaFile()"></div>
         </div>
         <div class="them-file-input">
@@ -306,7 +305,16 @@ export default {
             uisPdf: null, 
             link_ufile: "", 
             updateFile: {}, 
-            deleteFile: {}, 
+            deleteFile: {},
+
+            //
+            submit: [], 
+            submit_code: [], 
+            result: [], 
+            result_code: [], 
+            //load 
+            danhsachhocsinh: {}, 
+            filedanhsach: {}, 
         }
     }, 
     mounted(){
@@ -321,6 +329,24 @@ export default {
         })
     }, 
     methods: {
+        loadDataFile: function(){
+            BaseRequest.get("assignment/class?classId=" + this.filedanhsach.classId)
+            .then(response => {
+                this.fileList = response.data; 
+            })
+            .catch(error => {
+                console.log(error.message); 
+            })
+        }, 
+        loadDataDocument: function(){
+            BaseRequest.get("class/teacher_course?teacher_CourseId=" + this.danhsachhocsinh.teacher_CourseId)
+            .then(response => {
+                this.classList = response.data; 
+            })
+            .catch(error => {
+                console.log(error.message); 
+            })
+        }, 
         /**
          * Hàm mở form thêm mới
          */
@@ -351,6 +377,7 @@ export default {
             document.getElementById("course-file-teacher").style.display = "none";
             document.getElementById("class-file-teacher").style.display = "block"; 
             document.getElementById('tailieu-file-teacher').style.display = "none"; 
+            this.danhsachhocsinh = item; 
             BaseRequest.get("class/teacher_course?teacher_CourseId=" + item.teacher_CourseId)
             .then(response => {
                 this.classList = response.data; 
@@ -367,6 +394,7 @@ export default {
             document.getElementById("course-file-teacher").style.display = "none";
             document.getElementById("class-file-teacher").style.display = "none";
             document.getElementById("tailieu-file-teacher").style.display = "block"; 
+            this.filedanhsach = item; 
             BaseRequest.get("assignment/class?classId=" + item.classId)
             .then(response => {
                 this.fileList = response.data; 
@@ -509,6 +537,7 @@ export default {
             this.umota = this.getFile.description; 
             this.udeadline = this.getFile.deadline; 
             this.link_ufile = this.getFile.assignmentLink; 
+
         }, 
         closeSuaFile: function(){
             document.getElementById("sua-file").style.display = "none"; 
@@ -531,7 +560,7 @@ export default {
             if(this.ufile){
                 //đọc URL của file và gán vào imageUrl để hiển thị 
                 const reander = new FileReader();  
-                reander.readAsDataURL(this.file); 
+                reander.readAsDataURL(this.ufile); 
             }
             this.uisPdf = null; 
         },
@@ -601,6 +630,28 @@ export default {
                 }
                 else {
                     //goi api upload anh 
+                    const formData = new FormData(); 
+                    formData.append("AssignmentId", this.updateFile.assignmentId); 
+                    formData.append("AssignmentCode", this.updateFile.assignmentCode); 
+                    formData.append("AssignmentName", this.uten); 
+                    formData.append("Deadline", this.udeadline); 
+                    formData.append("Description", this.umota); 
+                    formData.append("ClassId", this.updateFile.classId); 
+                    formData.append("File", this.ufile); 
+
+                    console.log(this.updateFile); 
+                    console.log(this.ufile); 
+
+                    BaseRequest.put("assignment/FilePdf", formData)
+                    .then(response => {
+                        console.log(response.data); 
+                        alert("Đã cập nhật thành công tài liệu có mã " + this.updateFile.assignmentCode + "!"); 
+                        document.getElementById("sua-file").style.display = "none"; 
+                        document.getElementById("file_back").style.display = "none";
+                    })
+                    .catch(error => {
+                        console.log(error.message); 
+                    })
                 }
             }
         }, 
@@ -614,6 +665,56 @@ export default {
 
             document.getElementById("ad-dialog-btn").addEventListener("click", function(){
                 //Tiến hành xóa document. 
+                BaseRequest.get("submit/submit_assignment?assignmentId=" + item.assignmentId)
+                .then(response => {
+                    this.submit = response.data;
+                    if(this.submit.length > 0){
+                        for (const item of this.submit) {
+                            this.submit_code.push(item.submitCode); 
+                        }
+
+                        //Xóa submit
+                        BaseRequest.delete("submit/any", this.submit_code)
+                        .then(response => {
+                            console.log(response.data); 
+                        })
+                        .catch(error => {
+                            console.log(error.message); 
+                        })
+                    }
+                })
+                .catch(error => {
+                    console.log(error.message); 
+                })
+
+
+                BaseRequest.get("result/assignment?assignmentId=" + item.assignmentId)
+                .then(response => {
+                    this.result = response.data; 
+                    if(this.result.length > 0){
+                        for (const item of this.result) {
+                            this.result_code.push(item.resultCode); 
+                        }
+
+                        BaseRequest.delete("result/any", this.result_code)
+                        .then(response => {
+                            console.log(response.data); 
+                        })
+                        .catch(error => {
+                            console.log(error.message); 
+                        })
+                    }
+                })
+                .catch(error => {
+                    console.log(error.message); 
+                })
+
+                BaseRequest.delete("assignment?code=" + item.assignmentCode)
+                .then(response => {
+                    console.log(response.data); 
+                    document.getElementById("ad-dialog-delete").style.display = "none";
+                    alert("Xóa tài liệu thành công!");
+                })
             })
         }
 

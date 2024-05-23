@@ -23,7 +23,7 @@
             <h1>Miễn phí</h1>
             <p>Thời gian đăng ký còn lại.</p>
             <p>{{ thoiGianConLai }}</p>
-            <button v-on:click="dangKy()">Đăng ký</button>
+            <button v-on:click="dangKy()" v-show="show_dangky">Đăng ký</button>
             <p>Tổng số buổi học: {{ teacher_course.thoiGian }} buổi</p>
         </div>
     </div>
@@ -40,6 +40,7 @@ export default {
             thoiGianConLai: "", 
             dangky: {}, 
             userLogin: {}, 
+            show_dangky: true,  
         }
     }, 
     mounted(){
@@ -74,9 +75,11 @@ export default {
 
             if(ngay < 0 || gio < 0 || phut < 0 || giay < 0){
                 this.thoiGianConLai = "Đã hết thời gian đăng ký."; 
+                this.show_dangky = false; 
             }
             else {
                 this.thoiGianConLai = `${ngay} ngày ${gio} giờ ${phut} phút ${giay} giây`;
+                this.show_dangky = true; 
             }
 
             // Format remaining time as a string

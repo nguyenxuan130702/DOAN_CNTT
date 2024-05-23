@@ -96,6 +96,50 @@ namespace API_DOAN.Controllers
             var res = _assignmentService.UpdateService(t);
             return StatusCode(200, res);
         }
+        [HttpPut]
+        [Route("FilePdf")]
+        public IActionResult PutWithFile([FromForm] AssignmentFile l)
+        {
+            var check = _assignmentRepository.CheckDuplicateCode(l.AssignmentCode);
+            if (check)
+            {
+                var lesson = new Assignment { AssignmentId = l.AssignmentId, AssignmentCode = l.AssignmentCode, AssignmentName = l.AssignmentName, Deadline = l.Deadline, Description = l.Description, ClassId = l.ClassId };
+                if (l.File.Length > 0)
+                {
+                    using (var stream = l.File.OpenReadStream())
+                    {
+                        var uploadParams = new ImageUploadParams()
+                        {
+                            File = new FileDescription(l.File.FileName, stream),
+                            PublicId = "unique_id_for_uploaded_pdf"
+                        };
+                        var uploadResult = _cloudinary.Upload(uploadParams);
+
+                        var fileUrl = uploadResult.Uri.AbsoluteUri;
+
+                        lesson.AssignmentLink = fileUrl;
+                    }
+                }
+                else
+                {
+                    lesson.AssignmentLink = null;
+                }
+
+                var res = _assignmentService.UpdateService(lesson);
+                if (res.Success == true)
+                {
+                    return StatusCode(201, res);
+                }
+                else
+                {
+                    return StatusCode((int)HttpStatusCode.BadGateway, res);
+                }
+            }
+            else
+            {
+                return Ok("Mã tài liệu không có trong hệ thống.");
+            }
+        }
         [HttpDelete]
         public IActionResult Delete(string code)
         {

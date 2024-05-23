@@ -8,7 +8,7 @@
         <div class="a-course_table">
             <div class="a-course_table-title">
                 <div class="a-course_table-title-search">
-                    <input type="text" placeholder="Tìm kiếm theo mã, chủ đề khóa học" id="search-new">
+                    <input type="text" placeholder="Tìm kiếm theo mã, chủ đề khóa học" id="search-lesson">
                     <div class="search-course" v-on:click="searchNew()">
                         <div class="icon_search"></div>
                     </div>
@@ -94,6 +94,8 @@ export default{
             question_code: [], 
             pageSize: 10, 
             page: 1, 
+            search_lesson: [], 
+            tg: [], 
         }
     }, 
     created(){
@@ -117,6 +119,26 @@ export default{
         }
     }, 
     methods: {
+        searchNew: function(){
+            var x = document.getElementById("search-lesson").value; 
+            BaseRequest.get("viewlessoncourse")
+            .then(response => {
+                this.tg = []; 
+                this.search_lesson = response.data; 
+                console.log("trung gian"); 
+                console.log(this.search_lesson);
+                for (const item of this.search_lesson) {
+                    if(item.lessonCode === x || item.lessonName === x){
+                        this.tg.push(item); 
+                    }
+                }
+                this.lesson = this.tg; 
+                console.log(this.tg); 
+                })
+            .catch(error => {
+                console.log(error.message); 
+            }) 
+        }, 
         nextPageLesson: function(){
             this.page++; 
             BaseRequest.get("viewlessoncourse/page?page=" + this.page + "&pageSize=" + this.pageSize)

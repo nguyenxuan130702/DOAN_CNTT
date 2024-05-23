@@ -5,6 +5,7 @@
     <LichHoc :propGetCourse="getCourse"></LichHoc>
     <UpdateCourse :propGetCourse="getCourse"></UpdateCourse>
     <ThemMoi></ThemMoi>
+    <CanhBao></CanhBao>
     <!-- <Chart></Chart> -->
     <div class="course-teacher" id="course-teacher">
         <h1>Quản lý lớp học</h1>
@@ -28,8 +29,8 @@
                     <thead>
                         <tr>
                             <td style="width: 100px;">Mã lớp học</td>
-                            <td style="width: 300px">Tên lớp học</td>
-                            <td style="width: 200px">Thời gian bắt đầu</td>
+                            <td style="width: 250px">Tên lớp học</td>
+                            <td style="width: 150px">Thời gian bắt đầu</td>
                             <td style="width: 100px">Xem chi tiết</td>
                             <td style="width: 100px;">Sửa</td>
                             <td style="width: 100px">Học sinh</td>
@@ -40,8 +41,8 @@
                     <tbody>
                         <tr v-for="(item, index) in teacher_course" :key="index">
                             <td style="width: 100px;">{{ item.teacher_CourseCode }}</td>
-                            <td style="width: 300px">{{ item.teacher_CourseName }}</td>
-                            <td style="width: 200px">{{ renderDate(item.startTime)}}</td>
+                            <td style="width: 250px">{{ item.teacher_CourseName }}</td>
+                            <td style="width: 150px">{{ renderDate(item.startTime)}}</td>
                             <td style="width: 100px; text-align: center" class="xemchitiet" v-on:click="openChiTiet(item)">
                                 <button>Xem</button>
                             </td>
@@ -54,7 +55,7 @@
                             <td style="width: 150px;" class="lichhoc" v-on:click="openLichHoc(item)">
                                 <button>Xem chi tiết</button>
                             </td>
-                            <td style="text-align: center" class="xoalophoc">
+                            <td style="text-align: center" class="xoalophoc" v-on:click="deleteTeacher_Course(item)">
                                 <button>Xóa</button>
                             </td>
                         </tr>
@@ -63,7 +64,7 @@
             </div>
             <div class="a-course_table-page">
                 <div style="margin-left: 24px;">
-                    Tổng: 10
+                    Tổng: {{ teacher_course.length }}
                 </div>
                 <div style="margin-right: 24px" class="a-course_table-page1">
                     <div>Số bản ghi/trang: 
@@ -126,7 +127,7 @@
                             <td style="width: 150px; text-align: center" class="hocsinh" v-on:click="tinhTrang(item)">
                                 <button>Chi tiết</button>
                             </td>
-                            <td style="text-align: center" class="xoalophoc">
+                            <td style="text-align: center" class="xoalophoc" v-on:click="xoaHocSinh(item)">
                                 <button>Xóa</button>
                             </td>
                         </tr>
@@ -135,7 +136,7 @@
             </div>
             <div class="a-course_table-page">
                 <div style="margin-left: 24px;">
-                    Tổng: 4
+                    Tổng: {{ hocsinh.length }}
                 </div>
                 <div style="margin-right: 24px" class="a-course_table-page1">
                     <div>Số bản ghi/trang: 
@@ -166,6 +167,7 @@
     <!--Form sửa thông tin -->
 </template>
 <script>
+import CanhBao from '@/components/admin/layout/DialogCanhbao.vue'
 import Navbar from '@/components/teacher/layout/NavbarTeacher.vue'
 import Sidebar from '@/components/teacher/layout/SidebarTeacher.vue'
 import BaseRequest from '@/core/BaseRequest'
@@ -181,10 +183,12 @@ export default {
         ChiTietKhoaHoc, 
         LichHoc, 
         UpdateCourse, 
-        ThemMoi
+        ThemMoi, 
+        CanhBao
     }, 
     data(){
         return {
+            teacher: {}, 
             teacher_course: [], 
             getCourse: {}, 
             hocsinh: [], 
@@ -198,10 +202,31 @@ export default {
             chart: null, 
             chartWidth: 300, // Đặt chiều rộng mặc định của biểu đồ
             chartHeight: 300,
+
+            //Xoa bang enrollment 
+            enrollment: [], 
+            enrollment_code: [], 
+
+            //Xoa bang class 
+            class: [],
+            class_code: [],
+
+            //Xoa bang assignment
+            assing: [], 
+            assing_code: [],
+
+            //Xoa bang submit
+            submit: [], 
+            submit_code: [], 
+
+            //Xoa bang result 
+            result: [], 
+            result_code: [], 
         }
     }, 
     mounted(){
-        BaseRequest.get("teacher_course")
+        this.teacher = JSON.parse(localStorage.getItem("teacherLogin")); 
+        BaseRequest.get("teacher_course/teacher?teacherId=" + this.teacher.teacherId)
         .then(response => {
             this.teacher_course = response.data; 
         })
@@ -211,6 +236,148 @@ export default {
         this.renderChart(this.data); 
     }, 
     methods: { 
+        xoaHocSinh: function(item){
+            document.getElementById("thognbao").innerHTML = "Bạn có chắc chắn muốn xóa học sinh có mã " + item.userCode + "?"; 
+            document.getElementById("ad-dialog-delete").style.display = "block"; 
+            document.getElementById("ad-dialog-btn").addEventListener("click", () => {
+                //Tiến hành xóa dữ liệu 
+                BaseRequest.delete("enrollment?code=" + item.enrollmentCode)
+                .then(response => {
+                    console.log(response.data); 
+                    document.getElementById("ad-dialog-delete").style.display = "none"; 
+                    alert("Đã xóa thành công người học có mã " + item.userCode + " ra khỏi lớp học."); 
+                })
+                .catch(error => {
+                    console.log(error.message); 
+                })
+            })
+        }, 
+        deleteTeacher_Course: function(item){
+            document.getElementById("thognbao").innerHTML = "Bạn có chắc chắn muốn xóa học sinh có mã " + item.teacher_CourseCode + "?"; 
+            document.getElementById("ad-dialog-delete").style.display = "block"; 
+            document.getElementById("ad-dialog-btn").addEventListener("click", () => {
+                //Tiến hành xóa dữ liệu 
+                //Xóa khóa học phải xóa các bảng liên quan. 
+                //Xóa bảng enrollment trước 
+                BaseRequest.get("enrollment/user_enrollment_teacher_course?teacher_CourseId=" + item.teacher_CourseId)
+                .then(response => {
+                    this.enrollment = response.data;
+                    if(this.enrollment.length > 0){
+                        for (const item of this.enrollment) {
+                            this.enrollment_code.push(item.enrollmentCode); 
+                        }
+
+                        BaseRequest.delete("enrollment/any", this.enrollment_code)
+                        .then(response => {
+                            console.log(response.data); 
+                        })
+                        .catch(error => {
+                            console.log(error.message); 
+                        })
+                    }
+                })
+                .catch(error => {
+                    console.log(error.message); 
+                })
+
+                //Xóa bảng buoir học 
+                BaseRequest.get("class/teacher_course?teacher_CourseId=" + item.teacher_CourseId)
+                .then(response => {
+                    this.class = response.data; 
+                    if(this.class > 0){
+                        //Xóa từng buổi 1 
+                        for (const item of this.class) {
+                            this.class_code.push(item.classCode); 
+                            //Bảng assignment 
+                            BaseRequest.get("assignment/class?classId=" + item.classId)
+                            .then(response => {
+                                this.assing = response.data;
+                                if(this.assing.length > 0){
+                                    //Xóa bảng submit và result
+                                    for (const item of this.assing) {
+                                        this.assing_code.push(item.assignmentCode); 
+                                        BaseRequest.get("submit/submit_assignment?assignmentId=" + item.assignmentId)
+                                        .then(response => {
+                                            this.submit = response.data;
+                                            if(this.submit.length > 0){
+                                                for (const item of this.submit) {
+                                                    this.submit_code.push(item.submitCode); 
+                                                }
+
+                                                //Xóa submit
+                                                BaseRequest.delete("submit/any", this.submit_code)
+                                                .then(response => {
+                                                    console.log(response.data); 
+                                                })
+                                                .catch(error => {
+                                                    console.log(error.message); 
+                                                })
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.log(error.message); 
+                                        })
+
+
+                                        BaseRequest.get("result/assignment?assignmentId=" + item.assignmentId)
+                                        .then(response => {
+                                            this.result = response.data; 
+                                            if(this.result.length > 0){
+                                                for (const item of this.result) {
+                                                    this.result_code.push(item.resultCode); 
+                                                }
+
+                                                BaseRequest.delete("result/any", this.result_code)
+                                                .then(response => {
+                                                    console.log(response.data); 
+                                                })
+                                                .catch(error => {
+                                                    console.log(error.message); 
+                                                })
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.log(error.message); 
+                                        })
+                                    }
+
+                                    BaseRequest.delete("assignment/any", this.assing_code)
+                                    .then(response => {
+                                        console.log(response.data); 
+                                    })
+                                    .catch(error => {
+                                        console.log(error.message); 
+                                    })
+                                } 
+                            })
+                            .catch(error => {
+                                console.log(error.message); 
+                            })
+                        }
+
+                        //Xoa lop 
+                        BaseRequest.delete("class/any", this.class_code)
+                        .then(response => {
+                            console.log(response.data); 
+                        })
+                        .catch(error => {
+                            console.log(error.message); 
+                        })
+                    }
+                }); 
+
+                //Xóa khóa học 
+                BaseRequest.delete("teacher_course?code=" + item.teacher_CourseCode)
+                .then(response => {
+                    console.log(response.data); 
+                    document.getElementById("ad-dialog-delete").style.display = "none";
+                    alert("Xóa khóa học thành công!");
+                })
+                .catch(error => {
+                    console.log(error.message); 
+                })
+            })
+        }, 
         closeChamDiem: function(){
             document.getElementById("bieudo-ngaynghi-course").style.display = "none"; 
             document.getElementById("course_back").style.display = "none";
@@ -259,7 +426,7 @@ export default {
 
         }, 
         loadDataCourse: function(){
-            BaseRequest.get("teacher_course")
+            BaseRequest.get("teacher_course/teacher?teacherId=" + this.teacher.teacherId)
             .then(response => {
                 this.teacher_course = response.data; 
             })

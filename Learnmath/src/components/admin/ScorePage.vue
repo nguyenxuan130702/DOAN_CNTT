@@ -125,12 +125,12 @@ export default {
             }
             this.score = this.tg; 
         }, 
-        renderDate: function(item){
-            var date = new Date(item); 
-            var d = date.getDay(); 
-            var m = date.getMonth() + 1; 
-            var y = date.getFullYear(); 
-            return d + "/" + m + "/" + y; 
+        renderDate: function(date1){
+            let dateObject = new Date(date1);
+
+            let formattedDate = `${dateObject.getDate()}/${dateObject.getMonth() + 1}/${dateObject.getFullYear()}`;
+
+            return formattedDate; 
         },
         openFormPutScore: function(item){
             this.getScore = item; 

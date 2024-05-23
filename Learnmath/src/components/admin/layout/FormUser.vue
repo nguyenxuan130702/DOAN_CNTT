@@ -192,6 +192,8 @@ export default{
                         formData.append("UserType", this.type);
                         formData.append("Image", this.file);  
 
+                        console.log(userCode); 
+
                         BaseRequest.post("user/PostImage", formData)
                         .then(response => {
                             console.log(response.data); 

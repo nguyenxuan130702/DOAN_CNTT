@@ -101,9 +101,10 @@ export default{
                     formData.append("NewCode", this.new.newCode); 
                     formData.append("NewTitle", this.tieude); 
                     formData.append("NewDate", this.new.newDate); 
-                    formData.append("NewContent", this.noidung);
-                    formData.append("CreatedDate", this.new.createdDate);  
+                    formData.append("NewContent", this.noidung); 
                     formData.append("Image", this.file); 
+
+                    console.log(this.new); 
                     
                     BaseRequest.put("news/UpdateImage", formData)
                     .then(response => {

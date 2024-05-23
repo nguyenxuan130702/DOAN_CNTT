@@ -16,7 +16,7 @@ namespace API_DOAN_Infrastructure.Repository
 
         public bool CheckDuplicateCode(string code)
         {
-            var sqlCheck = "SELECT ScoreCode FROM Result c WHERE c.ResultCode = @code";
+            var sqlCheck = "SELECT ResultCode FROM Result c WHERE c.ResultCode = @code";
             var parameters = new DynamicParameters();
             parameters.Add("@code", code);
 

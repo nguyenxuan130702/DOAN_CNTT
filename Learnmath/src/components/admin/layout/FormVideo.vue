@@ -213,7 +213,9 @@ export default{
 }
 </script>
 <style scoped>
-
+#dialog_video {
+    opacity: 0;
+}
 .form_video-item > img {
     width: 100%;
     height: 150px;

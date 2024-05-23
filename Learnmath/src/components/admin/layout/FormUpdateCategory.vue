@@ -77,6 +77,7 @@ export default {
                     //thông báo chỉnh sửa thành công. 
                     document.getElementById("form_update_category").style.display = "none"; 
                     document.getElementById("category_back").style.display = "none"; 
+                    document.getElementById("dialog_dangky_content").innerHTML = "Cập nhật thành công!"; 
                     document.getElementById("dialog_category").style.opacity = 1;
                 })
                 .catch(error => {

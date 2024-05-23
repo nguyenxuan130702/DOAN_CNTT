@@ -1,5 +1,5 @@
 <template>
-    <ThemMoi :propCourse="getCourse" :propListClass="schedule"></ThemMoi>
+    <ThemMoi :propCourse="getCourse" :propListClass="schedule1"></ThemMoi>
     <ChiTietLop :propGetClass="getClass"></ChiTietLop>
     <div class="lichhoc_course" id="lichhoc_course">
         <div>
@@ -11,17 +11,8 @@
         </div>
         <div class="a-course_table">
             <div class="a-course_table-title">
-                <div class="a-course_table-title-search">
-                    <input type="text" placeholder="Tìm kiếm theo mã, chủ đề khóa học" id="search-course">
-                    <div class="search-course" v-on:click="searchCourse()">
-                        <div class="icon_search"></div>
-                    </div>
-                </div>
                 <div class="a-course_table-title-btn">
                     <button v-on:click="openFormPostCourse()">Thêm mới</button>
-                    <div class="icon_loaddata_sty">
-                        <div class="icon_loaddata" v-on:click="loadDataCourse()"></div>
-                    </div>
                 </div>
             </div>
             <div class="a-course_table-content">
@@ -58,19 +49,15 @@
                 </table>
             </div>
             <div class="a-course_table-page">
-                <div style="margin-left: 24px;">
-                    Tổng: 10
-                </div>
                 <div style="margin-right: 24px" class="a-course_table-page1">
-                    <div>Số bản ghi/trang: 
-                        <select name="" id="">
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                        </select>
+                    <div v-on:click="backPageCourse()">
+                        <div class="icon_back"></div>
+                        <div>Tuần trước</div>
                     </div>
-                    <div class="icon_back" v-on:click="backPageCourse()"></div>
-                    <div class="icon_next" v-on:click="nextPageCourse()"></div>
+                    <div v-on:click="nextPageCourse()">
+                        <div>Tuần sau</div>
+                        <div class="icon_next"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -135,6 +122,7 @@ export default{
                 '18:00:00', '19:30:00', '20:30:00', '21:00:00', '22:00:00' 
             ],
             schedule: [], 
+            schedule1: [], 
             getCourse: {}, 
             trunggian: [], 
             getClass: {}, 
@@ -151,25 +139,106 @@ export default{
             timeDifference: {
                 hours: 0,
                 minutes: 0
-            }
+            }, 
+
+            assing: [], 
+            assing_code: [], 
+            submit: [], 
+            submit_code: [], 
+            result: [], 
+            result_code: [], 
         }
     }, 
     mounted(){
         this.setWeekDates();
-        // this.ten = this.updateClass.className; 
-        // this.gio = this.updateClass.time; 
-        // this.ngay = this.updateClass.date; 
-        // this.link_lop = this.updateClass.classLink;
     }, 
     methods: { 
-        // deleteCourse: function(item){
-        //     document.getElementById("ad-dialog-delete").style.display = "block"; 
-        //     document.getElementById('thognbao').innerHTML = "Bạn có chắc chắn muốn xóa buổi học có mã " + item.classCode; 
-        //     document.getElementById("ad-dialog-btn").addEventListener("click", function(){
-        //         //Xóa dữ liệu 
+        deleteCourse: function(item){
+            document.getElementById("thognbao").innerHTML = "Bạn có chắc chắn muốn xóa lích học ngày " + this.renderDate(item.date) + "?"; 
+            document.getElementById("ad-dialog-delete").style.display = "block"; 
+            document.getElementById("ad-dialog-btn").addEventListener("click", () => {
+                BaseRequest.get("assignment/class?classId=" + item.classId)
+                .then(response => {
+                    this.assing = response.data;
+                    if(this.assing.length > 0){
+                        //Xóa bảng submit và result
+                        for (const item of this.assing) {
+                            this.assing_code.push(item.assignmentCode); 
+                            BaseRequest.get("submit/submit_assignment?assignmentId=" + item.assignmentId)
+                            .then(response => {
+                                this.submit = response.data;
+                                if(this.submit.length > 0){
+                                    for (const item of this.submit) {
+                                        this.submit_code.push(item.submitCode); 
+                                    }
 
-        //     })
-        // }, 
+                                    //Xóa submit
+                                    BaseRequest.delete("submit/any", this.submit_code)
+                                    .then(response => {
+                                        console.log(response.data); 
+                                    })
+                                    .catch(error => {
+                                        console.log(error.message); 
+                                    })
+                                }
+                            })
+                            .catch(error => {
+                                console.log(error.message); 
+                            })
+
+
+                            BaseRequest.get("result/assignment?assignmentId=" + item.assignmentId)
+                            .then(response => {
+                                this.result = response.data; 
+                                if(this.result.length > 0){
+                                    for (const item of this.result) {
+                                        this.result_code.push(item.resultCode); 
+                                    }
+
+                                    BaseRequest.delete("result/any", this.result_code)
+                                    .then(response => {
+                                        console.log(response.data); 
+                                    })
+                                    .catch(error => {
+                                        console.log(error.message); 
+                                    })
+                                }
+                            })
+                            .catch(error => {
+                                console.log(error.message); 
+                            })
+                        }
+                        BaseRequest.delete("assignment/any", this.assing_code)
+                        .then(response => {
+                            console.log(response.data); 
+                        })
+                        .catch(error => {
+                            console.log(error.message); 
+                        })
+                    } 
+                })
+                .catch(error => {
+                    console.log(error.message); 
+                })
+
+                //Xoa class 
+                BaseRequest.delete("class?code=" + item.classCode)
+                .then(response => {
+                    console.log(response.data); 
+                    document.getElementById("ad-dialog-delete").style.display = "none";
+                    alert("Xóa lịch học thành công!"); 
+                })
+                .catch(error => {
+                    console.log(error.message); 
+                })
+            })
+        }, 
+        nextPageCourse: function(){
+            this.nextweek(); 
+        }, 
+        backPageCourse: function(){
+            this.setbackWeekDates(); 
+        }, 
         closeSuaClass: function(){
             document.getElementById("update_class").style.display = "none"; 
             document.getElementById("course_back").style.display = "none"; 
@@ -211,7 +280,6 @@ export default{
                     isCheck = false; 
                 }
                 else {
-                    this.gio = this.gio + ":00"
                     const datenew = new Date(); 
                     console.log(this.renderDate(datenew)); 
 
@@ -248,7 +316,9 @@ export default{
                 //chinh sua
 
                 if(this.file === null || this.file === undefined || this.file === ""){
+
                     //goi api khong file 
+                    this.updateClass.className = this.ten; 
                     this.updateClass.date = this.ngay; 
                     this.updateClass.time = this.gio; 
                     this.updateClass.classLink = this.link_lop; 
@@ -268,6 +338,26 @@ export default{
                 }
                 else {
                     //gọi api update file 
+                    const formData = new FormData(); 
+                    formData.append("ClassId", this.updateClass.classId); 
+                    formData.append("ClassCode", this.updateClass.classCode); 
+                    formData.append("Teacher_CourseId", this.updateClass.teacher_CourseId); 
+                    formData.append("Date", this.ngay); 
+                    formData.append("Time", this.gio); 
+                    formData.append("ClassLink", this.link_lop); 
+                    formData.append("ClassName", this.ten); 
+                    formData.append("File", this.file); 
+
+                    BaseRequest.put("class/FilePdf", formData)
+                    .then(response => {
+                        console.log(response.data); 
+                        alert("Cập nhật buổi học thành công!"); 
+                        document.getElementById("update_class").style.display = "none"; 
+                        document.getElementById("course_back").style.display = "none";
+                    })
+                    .catch(error => {
+                        console.log(error.data.message); 
+                    })
                 }
             }
         }, 
@@ -342,6 +432,40 @@ export default{
             };
         });
         },
+        nextweek() {
+            // Move to the previous week
+            // Example logic: decrement the start date of the week by 7 days
+            const startDate = new Date(this.weekDates[0].date);
+            startDate.setDate(startDate.getDate() + 7);
+
+            this.weekDates = [...Array(7)].map((_, i) => {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                const dateString = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+                return {
+                    date: date.toISOString().split('T')[0], // format YYYY-MM-DD
+                    dateString: dateString
+                };
+            });
+
+    // Fetch events for the previous week
+        }, 
+        setbackWeekDates() {
+            // Move to the previous week
+            // Example logic: decrement the start date of the week by 7 days
+            const startDate = new Date(this.weekDates[0].date);
+            startDate.setDate(startDate.getDate() - 7);
+
+            this.weekDates = [...Array(7)].map((_, i) => {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                const dateString = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+                return {
+                    date: date.toISOString().split('T')[0], // format YYYY-MM-DD
+                    dateString: dateString
+                };
+            });
+        },
         isClassScheduled(date, time) {
             for (const item of this.schedule) {
                 if(date === this.renderDate(item.date) && time === item.time){
@@ -379,7 +503,16 @@ export default{
             this.getCourse = this.propGetCourse; 
             BaseRequest.get("view_class_assignment/teacher_course?teacher_CourseId=" + this.getCourse.teacher_CourseId)
             .then(response => {
-                this.schedule  = response.data;
+                this.schedule1  = response.data;
+                console.log(this.schedule1); 
+            })
+            .catch(error => {
+                console.log(error.message); 
+            })
+
+            BaseRequest.get("class/teacher_course?teacher_CourseId=" + this.getCourse.teacher_CourseId)
+            .then(response => {
+                this.schedule = response.data; 
                 console.log(this.schedule); 
             })
             .catch(error => {
@@ -390,6 +523,18 @@ export default{
 }
 </script>
 <style scoped>
+.a-course_table-page1 {
+    margin: auto; 
+}
+.a-course_table-page1 > div {
+    display: flex; 
+    gap: 16px; 
+    align-items: center;
+}
+.a-course_table-page1 > div:hover {
+    cursor: pointer;
+    color: green;
+}
 .class_select {
     position: absolute; 
     top: 0; 
